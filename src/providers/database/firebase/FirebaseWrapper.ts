@@ -3,6 +3,7 @@ import {
   browserLocalPersistence,
   browserSessionPersistence,
   getAuth,
+  connectAuthEmulator,
   inMemoryPersistence,
   onAuthStateChanged,
   Persistence,
@@ -15,6 +16,7 @@ import {
   getFirestore,
   serverTimestamp as firestoreServerTimestamp,
   writeBatch,
+  connectFirestoreEmulator,
 } from 'firebase/firestore';
 import {
   getDownloadURL,
@@ -52,9 +54,24 @@ export class FirebaseWrapper implements IFirebaseWrapper {
       firebaseConfig,
       optionsSafe
     );
-    this._firestore = getFirestore(this._app);
     this._storage = getStorage(this._app);
-    this._auth = getAuth(this._app);
+    console.log('FirebaseWrapper', { optionsSafe });
+    if (optionsSafe.firestore) {
+      this._firestore = getFirestore();
+      console.log('Using firestore emulator');
+      console.log('connection string', optionsSafe.firestore.emulatorHost+':'+optionsSafe.firestore.emulatorPort);
+      connectFirestoreEmulator(this._firestore, optionsSafe.firestore.emulatorHost, optionsSafe.firestore.emulatorPort);
+    } else {
+      this._firestore = getFirestore(this._app);
+    }
+    if (optionsSafe.auth) {
+      this._auth = getAuth();
+      console.log('Using auth emulator');
+      console.log('connection string', optionsSafe.auth.emulator);
+      connectAuthEmulator(this._auth, optionsSafe.auth.emulator);
+    } else {
+      this._auth = getAuth(this._app);
+    }
   }
   dbGetCollection(absolutePath: string): FireStoreCollectionRef {
     return collection(this._firestore, absolutePath);

@@ -63,4 +63,11 @@ export interface RAFirebaseOptions {
    * @deprecated The method should not be used
    */
   overrideDefaultId?: boolean;
+  auth?: {
+    emulator: string;
+  };
+  firestore?: {
+    emulatorHost: string;
+    emulatorPort: number;
+  };
 }
